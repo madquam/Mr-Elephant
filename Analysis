@@ -1,0 +1,85 @@
+#Primary Analysis
+MrE <- MrE_07.20.20
+Modality <- as.factor(MrE$Modality)
+Timing <- as.factor(MrE$Timing)
+Success <- as.factor(MrE$Sm_Success)
+#Logistic Regression
+mod_1 <- glm(Success ~ Timing + MrE$SES..8.66. + Modality + MrE$Age, family=binomial(link="logit"), data = MrE)
+summary(mod_1)
+#Calculate Odds Ratio
+library(oddsratio)
+or_glm(MrE, mod_1)
+#Create table
+tab_model(mod_1)
+
+#Other models run that fit the data less well
+mod2 <- glm(Success ~ Timing + MrE$SES..8.66., family=binomial(link="logit"), data = MrE)
+summary(mod2)
+mod3 <- glm(Success ~ MrE$SES..8.66. + Modality + MrE$Age, family=binomial(link="logit"), data = MrE)
+summary(mod3)
+int_mod <- glm(Success ~ Timing * Modality + MrE$Age + MrE$SES..8.66., family=binomial(link="logit"), data = MrE)
+summary(int_mod)
+int_mod2 <- glm(Success ~ Timing * MrE$Age + Modality + MrE$SES..8.66., family=binomial(link="logit"), data = MrE)
+summary(int_mod2)
+
+#Early only: English vs. ASL
+chisq.test(Early.only$Language, Early.only$Success, correct = FALSE)
+#Later only: English vs. ASL
+chisq.test(Later.only$Language, Later.only$Success, correct = FALSE)
+
+#SES Group Comparisons
+t.test(MrE$SES..8.66. ~ Timing)
+t.test(MrE$SES..8.66. ~ Modality)
+
+#Age Box Dot Plot
+ggplot(data=MrE1, mapping = aes(x= Success1, y=Age1)) + geom_boxplot() +
+  geom_dotplot(dotsize=.9, binaxis = "y", stackdir = "center") +
+  stat_summary(fun=mean, geom="point", shape=18, size=8, color="red") + 
+  theme(axis.text.x = element_text(color = "grey20", size = 18, hjust = .5, vjust = .5, face = "plain"),
+        axis.text.y = element_text(color = "grey20", size = 18, hjust = 1, vjust = 0, face = "plain"),
+        axis.title.x = element_text(color = "grey20", size = 20, hjust = .5, vjust = 0, face = "plain"),
+        axis.title.y = element_text(color = "grey20", size = 20, hjust = .5, vjust = .5, face = "plain")) + 
+  ylab("Age (years)") + scale_x_discrete(labels= SuccessNewLabels) + 
+  xlab("Performance on Mr. Elephant Small Quantity Trials (2 & 3)")
+  
+#Exploratory Follow-Up Analysis
+MrE <- MrE_NA_Omit_07.20.20
+Modality <- as.factor(MrE$Modality)
+Timing <- as.factor(MrE$Timing)
+Success <- as.factor(MrE$Sm_Success)
+Give_N <- as.numeric(MrE$GN_Small_Ceiling_Cons)
+Highest_Count <- as.numeric(MrE$HC_noobj)
+SES <- MrE$SES..8.66.
+mod_exp <- glm(Success ~ Timing + SES + Give_N + Highest_Count, family=binomial(link="logit"), data = MrE)
+summary(mod_exp)
+#Oddsratio
+or_glm(MrE, mod_exp)
+#Create table
+tab_model(mod_exp)
+
+#Other models run that fit the data less well
+mod_3 <- glm(Success ~ Timing + SES + HighestCount, family=binomial(link="logit"), data = MrE)
+summary(mod_3)
+mod_gn <- glm(Success ~ Timing + GiveN, family=binomial(link="logit"), data = MrE)
+summary(mod_gn)
+mod_5 <- glm(Success ~ Timing + SES + GiveN, family=binomial(link="logit"), data = MrE)
+summary(mod_5)
+
+#Model Comparisons
+#with and without Highest Count
+anova(mod_5, mod_exp, test = 'LR')
+
+#Give N Violin Plot
+SmSuccess <- as.factor(MrE$Sm_Success)
+GN <- MrE$GN_Small_Ceiling_Cons
+SuccessNewLabels1 <- c("Did Not Get\nBoth Trials\nCorrect", "Both Trials\nCorrect")
+ggplot(data=MrE, mapping = aes(x= SmSuccess, y=GN)) + 
+  geom_violin() + geom_dotplot(alpha=.5, dotsize = .8, binaxis = "y", stackdir = "center") +
+  stat_summary(fun=mean, geom="point", shape=18, size=6, color="red") +
+  theme(axis.text.x = element_text(color = "grey20", size = 14, hjust = .5, vjust = .5, face = "plain"),
+        axis.text.y = element_text(color = "grey20", size = 14, hjust = 1, vjust = 0, face = "plain"),
+        axis.title.x = element_text(color = "grey20", size = 16, hjust = .5, vjust = 0, face = "plain"),
+        axis.title.y = element_text(color = "grey20", size = 16, hjust = .5, vjust = .5, face = "plain")) + 
+  ylab("Give N Performance") + scale_x_discrete(labels= SuccessNewLabels) + 
+  xlab("Performance on Mr. Elephant Small Quantity Trials")
+ 
