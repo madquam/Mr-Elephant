@@ -13,7 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Importing the Data
 ```{r}
 MrE_08.06.20 <- read.csv("~/Documents/Mr Elephant Analyses/MrE_08.06.20.csv", na.strings="N/A")
-View(MrE_08.06.20)
 ```
 ## Assigning Variable Names
 ```{r}
@@ -112,7 +111,6 @@ ggplot(data=MrE, mapping = aes(x= Success, y=Age)) + geom_boxplot() +
 ## Import Data and Assign Variable Names
 ```{r}
 MrE_NA_Omit_07.20.20 <- read.csv("~/Documents/Mr Elephant Analyses/MrE_NA_Omit_07.20.20.csv", na.strings="N/A")
-View(MrE_NA_Omit_07.20.20)
 MrE <- MrE_NA_Omit_07.20.20
 Modality <- as.factor(MrE$Modality)
 Timing <- as.factor(MrE$Timing)
@@ -144,6 +142,8 @@ summary(mod_GN2)
 #Next compare this model without Mr. E Success to the previous model
 anova(mod_GN2, mod_GN, test = 'LR')
 #Addition of Mr. E performance to the model is significant
+#Odds Ratio
+exp(coef(mod_GN))
 ```
 ## Does Give-N and Highest Count predict Mr. E?
 ```{r}
