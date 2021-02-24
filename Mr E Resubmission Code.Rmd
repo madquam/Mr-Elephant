@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ## Importing the Data
 ```{r}
 MrE_08.06.20 <- read.csv("~/Documents/Research/Mr E/MrE_08.06.20.csv", na.strings="N/A")
@@ -36,17 +37,14 @@ summary(MrE)
 #Timing
 chisq.test(Timing, Success, correct = FALSE) 
 #Significant difference between Early and Later Language groups on Mr. E performance 
-
 #Modality
 chisq.test(Modality, Success, correct = FALSE) 
 #No sig difference between English and ASL users on Mr. E performance
-
 #Early Language Group Only
 MrE_early <- subset(MrE, Timing=='Early')
 summary(MrE_early)
 chisq.test(MrE_early$Modality, MrE_early$Sm_Success, correct = FALSE)
 #No significant difference between performance in Early English and Early ASL groups
-
 #Later Language Group Only
 MrE_later <- subset(MrE, Timing=='Later')
 summary(MrE_later)
@@ -58,7 +56,6 @@ chisq.test(MrE_later$Modality, MrE_later$Sm_Success, correct = FALSE)
 mod_1 <- glm(Success ~ Timing + SES + Modality + Age, family=binomial(link="logit"), data = MrE)
 summary(mod_1)
 #Timing and SES are significant predictors of Success on Mr. E, Modality and Age are not
-
 #Odds Ratio
 exp(coef(mod_1))
 #Children in Early group are 2.58 times more likely to succeed on Mr. E than children in Later group
@@ -69,11 +66,9 @@ exp(coef(mod_1))
 #Timing*Modality
 mod_int1 <- glm(Success ~ Timing * Modality + SES + Age, family=binomial(link="logit"), data = MrE)
 summary(mod_int1)
-
 #Timing*Age
 mod_int2 <- glm(Success ~ Timing * Age + Modality + SES, family=binomial(link="logit"), data = MrE)
 summary(mod_int1)
-
 #Neither of these interactions are significant
 ```
 ## Model Comparisons
@@ -82,7 +77,6 @@ summary(mod_int1)
 anova(mod_1, mod_int1, test = 'LR')
 anova(mod_1, mod_int2, test = 'LR')
 #Neither of the models that include an interaction are a better fit than the original model
-
 #Does Timing explain variability in Mr. E performance independently of SES?
 #model without Timing as a predictor variable
 mod_no_timing <- glm(Success ~ SES + Modality + Age, family=binomial(link="logit"), data = MrE)
@@ -142,7 +136,6 @@ summary(mod_GN)
 stargazer(mod_GN, type = "text", title = "Logistic Regression Results", align=TRUE, dep.var.labels=c("Give-N CP Knower Level"), 
           covariate.labels=c("Mr. Elephant Performance", "Timing (Early)", "Socioeconomic Status", "Age"), 
           single.row=TRUE, keep.stat=c("n", "aic"),  out= "GN_MrE_model_210215.htm")
-
 #Is the addition of Mr. E significant to Give-N performance?
 #model without Mr. E Success as predictor variable
 mod_GN2 <- glm(CP_Knower ~ Timing + SES + Age, family=binomial(link="logit"), data = MrE)
@@ -156,7 +149,6 @@ anova(mod_GN2, mod_GN, test = 'LR')
 #First run original model with subset of participants who completed Mr. E, Give-N and Highest Count
 mod_original <- glm(Success ~ Timing + SES + Modality + Age, family=binomial(link="logit"), data = MrE)
 summary(mod_original) #same results, Timing and SES significant predictors
-
 #Next at Give-N and Highest Count as predictors
 mod_all <- glm(Success ~ Timing + SES + Modality + Age + CP_Knower + Highest_Count, family=binomial(link="logit"), data = MrE)
 summary(mod_all) #Timing and Give-N significant predictors
@@ -166,7 +158,6 @@ summary(mod_explore) #better AIC than the previous model
 #Compare models with and without Modality and Age
 anova(mod_explore, mod_all, test = 'LR') 
 #Modality and Age do not contribute significantly to the model, so we'll leave them out
-
 #Odds Ratio
 exp(coef(mod_explore))
 ```
@@ -175,7 +166,6 @@ exp(coef(mod_explore))
 #Compare models with and without addition of Give-N and Highest Count
 anova(mod_original, mod_all, test = 'LR')
 #Addition of Give-N and Highest Count are significant to model
-
 #Does Highest Count explain any variance in Mr. E performance?
 #model without Highest Count
 mod_no_hc <- glm(Success ~ Timing + SES + CP_Knower, family=binomial(link="logit"), data = MrE)
