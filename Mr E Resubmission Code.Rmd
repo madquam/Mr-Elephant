@@ -2,7 +2,8 @@
 title: "Mr E Resubmission Code"
 author: "Maddie Quam"
 date: "2/24/2021"
-output: html_document
+output:
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Importing the Data
 ```{r}
-MrE_08.06.20 <- read.csv("~/Documents/Research/Mr E/MrE_08.06.20.csv", na.strings="N/A")
+MrE_08.06.20 <- read.csv("~/Documents/Mr Elephant Analyses/MrE_08.06.20.csv", na.strings="N/A")
 View(MrE_08.06.20)
 ```
 ## Assigning Variable Names
@@ -110,7 +111,7 @@ ggplot(data=MrE, mapping = aes(x= Success, y=Age)) + geom_boxplot() +
 ### Exploratory Follow Up Analyses
 ## Import Data and Assign Variable Names
 ```{r}
-MrE_NA_Omit_07.20.20 <- read.csv("~/Documents/Research/Mr E/MrE_NA_Omit_07.20.20.csv", na.strings="N/A")
+MrE_NA_Omit_07.20.20 <- read.csv("~/Documents/Mr Elephant Analyses/MrE_NA_Omit_07.20.20.csv", na.strings="N/A")
 View(MrE_NA_Omit_07.20.20)
 MrE <- MrE_NA_Omit_07.20.20
 Modality <- as.factor(MrE$Modality)
