@@ -15,29 +15,178 @@ View(MrE_08.06.20)
 ```
 ## Assigning Variable Names
 ```{r}
-
+MrE <- MrE_08.06.20
+Modality <- as.factor(MrE$Modality)
+Timing <- as.factor(MrE$Timing)
+Success <- as.factor(MrE$Sm_Success)
+SES <- as.numeric(MrE$SES..8.66.)
+Age <- as.numeric(MrE$Age)
+#change reference group
+levels(MrE$Timing)
+MrE$Timing = relevel(MrE$Timing, ref = 'Later')
+Timing <- MrE$Timing
+```
+## Data Summary
+```{r}
+summary(MrE)
 ```
 
+## Chi-Square Group Comparisons
+```{r}
+#Timing
+chisq.test(Timing, Success, correct = FALSE) 
+#Significant difference between Early and Later Language groups on Mr. E performance 
 
+#Modality
+chisq.test(Modality, Success, correct = FALSE) 
+#No sig difference between English and ASL users on Mr. E performance
 
+#Early Language Group Only
+MrE_early <- subset(MrE, Timing=='Early')
+summary(MrE_early)
+chisq.test(MrE_early$Modality, MrE_early$Sm_Success, correct = FALSE)
+#No significant difference between performance in Early English and Early ASL groups
 
+#Later Language Group Only
+MrE_later <- subset(MrE, Timing=='Later')
+summary(MrE_later)
+chisq.test(MrE_later$Modality, MrE_later$Sm_Success, correct = FALSE)
+#No significant difference between performance in Later English and Later ASL groups
+```
+## Run Logistic Regression
+```{r}
+mod_1 <- glm(Success ~ Timing + SES + Modality + Age, family=binomial(link="logit"), data = MrE)
+summary(mod_1)
+#Timing and SES are significant predictors of Success on Mr. E, Modality and Age are not
 
-## R Markdown
+#Odds Ratio
+exp(coef(mod_1))
+#Children in Early group are 2.58 times more likely to succeed on Mr. E than children in Later group
+#For every 1 point increase in SES, children are 1.03 times more likely to succeed on Mr. E
+```
+## Check Interactions
+```{r}
+#Timing*Modality
+mod_int1 <- glm(Success ~ Timing * Modality + SES + Age, family=binomial(link="logit"), data = MrE)
+summary(mod_int1)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+#Timing*Age
+mod_int2 <- glm(Success ~ Timing * Age + Modality + SES, family=binomial(link="logit"), data = MrE)
+summary(mod_int1)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+#Neither of these interactions are significant
+```
+## Model Comparisons
+```{r}
+#First compare the interaction models to the original model
+anova(mod_1, mod_int1, test = 'LR')
+anova(mod_1, mod_int2, test = 'LR')
+#Neither of the models that include an interaction are a better fit than the original model
 
-```{r cars}
-summary(cars)
+#Does Timing explain variability in Mr. E performance independently of SES?
+#model without Timing as a predictor variable
+mod_no_timing <- glm(Success ~ SES + Modality + Age, family=binomial(link="logit"), data = MrE)
+summary(mod_no_timing)
+#Next compare this model without Timing to the original model
+anova(mod_no_timing, mod_1, test = 'LR')
+#Timing definitely does!
+```
+## Logistic Regression Results Table
+```{r}
+library(stargazer)
+stargazer(mod_1, type = "text", title = "Logistic Regression Results", align=TRUE, dep.var.labels=c("Mr. Elephant Performance"), 
+          covariate.labels=c("Timing (Early)", "Socioeconomic Status", "Modality (English)", "Age"), 
+          single.row=TRUE, keep.stat=c("n", "aic"),  out= "MrE_original_model_210211.htm")
+```
+## Age Dot Box Plot
+```{r}
+library(ggplot2)
+SuccessNewLabels <- c("Did Not Get Both Trials Correct", "Both Trials Correct")
+ggplot(data=MrE, mapping = aes(x= Success, y=Age)) + geom_boxplot() +
+  geom_dotplot(dotsize=.9, binaxis = "y", stackdir = "center") +
+  stat_summary(fun=mean, geom="point", shape=18, size=6, color="red") + 
+  theme(axis.text.x = element_text(color = "grey20", size = 14, hjust = .5, vjust = .5, face = "plain"),
+        axis.text.y = element_text(color = "grey20", size = 14, hjust = 1, vjust = 0, face = "plain"),
+        axis.title.x = element_text(color = "grey20", size = 16, hjust = .5, vjust = 0, face = "plain"),
+        axis.title.y = element_text(color = "grey20", size = 16, hjust = .5, vjust = .5, face = "plain")) + 
+  ylab("Age (years)") + scale_x_discrete(labels= SuccessNewLabels) + 
+  xlab("Performance on Mr. Elephant Small Quantity Trials")
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+### Exploratory Follow Up Analyses
+## Import Data and Assign Variable Names
+```{r}
+MrE_NA_Omit_07.20.20 <- read.csv("~/Documents/Research/Mr E/MrE_NA_Omit_07.20.20.csv", na.strings="N/A")
+View(MrE_NA_Omit_07.20.20)
+MrE <- MrE_NA_Omit_07.20.20
+Modality <- as.factor(MrE$Modality)
+Timing <- as.factor(MrE$Timing)
+Success <- as.factor(MrE$Sm_Success)
+SES <- as.numeric(MrE$SES..8.66.)
+Age <- as.numeric(MrE$Age)
+Highest_Count <- as.numeric(MrE$HC_noobj)
+CP_Knower <- as.factor(MrE$CP.Knower)
+#change reference groups
+levels(MrE$CP.Knower)
+MrE$CP.Knower = relevel(MrE$CP.Knower, ref = 'SS')
+CP_Knower <- MrE$CP.Knower
+levels(MrE$Timing)
+MrE$Timing = relevel(MrE$Timing, ref = 'Later')
+Timing <- MrE$Timing
 ```
+## Does Mr. E predict Give-N?
+# Run Logistic Regression
+```{r}
+mod_GN <- glm(CP_Knower ~ Success + Timing + SES + Age, family=binomial(link="logit"), data = MrE)
+summary(mod_GN)
+stargazer(mod_GN, type = "text", title = "Logistic Regression Results", align=TRUE, dep.var.labels=c("Give-N CP Knower Level"), 
+          covariate.labels=c("Mr. Elephant Performance", "Timing (Early)", "Socioeconomic Status", "Age"), 
+          single.row=TRUE, keep.stat=c("n", "aic"),  out= "GN_MrE_model_210215.htm")
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+#Is the addition of Mr. E significant to Give-N performance?
+#model without Mr. E Success as predictor variable
+mod_GN2 <- glm(CP_Knower ~ Timing + SES + Age, family=binomial(link="logit"), data = MrE)
+summary(mod_GN2)
+#Next compare this model without Mr. E Success to the previous model
+anova(mod_GN2, mod_GN, test = 'LR')
+#Addition of Mr. E performance to the model is significant
+```
+## Does Give-N and Highest Count predict Mr. E?
+```{r}
+#First run original model with subset of participants who completed Mr. E, Give-N and Highest Count
+mod_original <- glm(Success ~ Timing + SES + Modality + Age, family=binomial(link="logit"), data = MrE)
+summary(mod_original) #same results, Timing and SES significant predictors
+
+#Next at Give-N and Highest Count as predictors
+mod_all <- glm(Success ~ Timing + SES + Modality + Age + CP_Knower + Highest_Count, family=binomial(link="logit"), data = MrE)
+summary(mod_all) #Timing and Give-N significant predictors
+#remove nonsignificant predictors (Modality and Age)
+mod_explore <- glm(Success ~ Timing + SES + CP_Knower + Highest_Count, family=binomial(link="logit"), data = MrE)
+summary(mod_explore) #better AIC than the previous model
+#Compare models with and without Modality and Age
+anova(mod_explore, mod_all, test = 'LR') 
+#Modality and Age do not contribute significantly to the model, so we'll leave them out
+
+#Odds Ratio
+exp(coef(mod_explore))
+```
+#Compare Models
+```{r}
+#Compare models with and without addition of Give-N and Highest Count
+anova(mod_original, mod_all, test = 'LR')
+#Addition of Give-N and Highest Count are significant to model
+
+#Does Highest Count explain any variance in Mr. E performance?
+#model without Highest Count
+mod_no_hc <- glm(Success ~ Timing + SES + CP_Knower, family=binomial(link="logit"), data = MrE)
+summary(mod_no_hc)
+#Compare models with and without Highest Count
+anova(mod_no_hc, mod_explore, test = 'LR')
+#Highest Count is not a significant addition to the model
+```
+## Logistic Regression Results Table
+```{r}
+stargazer(mod_explore, type = "text", title = "Logistic Regression Results", align=TRUE, dep.var.labels=c("Mr. Elephant Performance"), 
+          covariate.labels=c("Timing (Early)", "Socioeconomic Status", "Give-N (CP-Knower)", "Highest Count"), 
+          single.row=TRUE, keep.stat=c("n", "aic"),  out= "MrE_exploratory_model_210218.htm")
+```
